@@ -16,6 +16,8 @@ ap.add_argument('-database', required=True,
                 help='Path to database which contains images to be indexed')
 ap.add_argument('-index', required=True,
                 help='Name of index file')
+ap.add_argument('-I', default=False,
+                help='Increase')
 args = vars(ap.parse_args())
 
 
@@ -66,12 +68,22 @@ if __name__ == '__main__':
 
     # directory for storing extracted features
     output = args['index']
+    if args.get('I'):
+        try:
+            with h5py.File(output, 'r') as h5f:
+                old_feats = h5f['dataset_1'][:]
+                old_names = h5f['dataset_2'][:]
+            feats = np.concatenate((old_feats, feats))
+            names = list(old_names) + names
+        except Exception as e:
+            print 'Cannot load h5 file!!!', str(e)
+            exit()
+        print 'Increase!!!'
 
     print '--------------------------------------------------'
     print '      writing feature extraction results ...'
     print '--------------------------------------------------'
 
-    h5f = h5py.File(output, 'w')
-    h5f.create_dataset('dataset_1', data=feats)
-    h5f.create_dataset('dataset_2', data=names)
-    h5f.close()
+    with h5py.File(output, 'w') as h5f:
+        h5f.create_dataset('dataset_1', data=feats)
+        h5f.create_dataset('dataset_2', data=names)
