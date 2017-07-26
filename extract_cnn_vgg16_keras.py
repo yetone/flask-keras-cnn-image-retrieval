@@ -9,19 +9,24 @@ from keras.preprocessing import image
 from keras.applications.vgg16 import preprocess_input
 
 
-'''
- Use vgg16 model to extract features
- Output normalized feature vector
-'''
 def extract_feat(img_path):
+    '''
+    Use vgg16 model to extract features
+    Output normalized feature vector
+    '''
     # weights: 'imagenet'
     # pooling: 'max' or 'avg'
     # input_shape: (width, height, 3), width and height should >= 48
-    
+
     input_shape = (224, 224, 3)
-    model = VGG16(weights = 'imagenet', input_shape = (input_shape[0], input_shape[1], input_shape[2]), pooling = 'max', include_top = False)
-        
-    img = image.load_img(img_path, target_size=(input_shape[0], input_shape[1]))
+    model = VGG16(
+        weights='imagenet', input_shape=input_shape[:3],
+        pooling='max', include_top=False
+    )
+
+    img = image.load_img(
+        img_path, target_size=(input_shape[0], input_shape[1])
+    )
     img = image.img_to_array(img)
     img = np.expand_dims(img, axis=0)
     img = preprocess_input(img)
